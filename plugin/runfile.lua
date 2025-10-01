@@ -1,3 +1,4 @@
-if pcall(require, "runfile") then
-  require("runfile").setup_commands()
+local ok, runfile = pcall(require, "runfile")
+if ok and runfile then
+  runfile.setup_commands()
 end
