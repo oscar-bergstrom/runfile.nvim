@@ -19,6 +19,7 @@ local function open_term(cmd)
   })
 
   vim.fn.termopen(cmd)
+  vim.cmd("startinsert")
   vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>bd!<CR>", { nowait = true, noremap = true, silent = true })
 end
 
