@@ -1,7 +1,9 @@
 local M = {}
 
--- Öppna en floating terminal och kör ett kommando
+-- Öppna en floating terminal och kör ett kommandoi
+local previous_cmd = {}
 local function open_term(cmd)
+  previous_cmd = cmd
   local buf = vim.api.nvim_create_buf(false, true)
   local width = math.floor(vim.o.columns * 0.8)
   local height = math.floor(vim.o.lines * 0.8)
@@ -95,6 +97,10 @@ function M.run_current_file_with_method()
   end
 end
 
+function M.run_previous()
+	open_term(previous_cmd)
+end
+
 -- Öppna en floating terminal (ren shell)
 function M.open_terminal_float()
   local buf = vim.api.nvim_create_buf(false, true)
@@ -131,6 +137,10 @@ function M.setup_commands()
 
   vim.api.nvim_create_user_command("RunMethod", function()
     M.run_current_file_with_method()
+  end, {})
+
+  vim.api.nvim_create_user_command("RunPrevious", function()
+    M.run_previous()
   end, {})
 
   vim.api.nvim_create_user_command("RunTerminal", function()
