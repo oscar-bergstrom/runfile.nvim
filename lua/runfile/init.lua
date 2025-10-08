@@ -75,7 +75,7 @@ end
 -- Kör bara filen
 function M.run_current_file()
   local file = vim.fn.expand("%:p")
-  open_term({ "bash", "run.sh", file })
+  open_term({ "bash", "run.sh", file }, {})
 end
 
 -- Kör filen + klass
