@@ -2,8 +2,9 @@ local M = {}
 
 -- Öppna en floating terminal och kör ett kommandoi
 local previous_cmd = {}
-local function open_term(cmd)
-  previous_cmd = cmd
+local function open_term(cmd, env)
+  env = env or {}
+  previous_cmd = {cmd, env}
   local buf = vim.api.nvim_create_buf(false, true)
   local width = math.floor(vim.o.columns * 0.8)
   local height = math.floor(vim.o.lines * 0.8)
@@ -20,7 +21,11 @@ local function open_term(cmd)
     border = "rounded",
   })
 
-  vim.fn.termopen(cmd)
+  vim.fn.termopen(
+		cmd, {
+			env = env
+		}
+	)
   vim.cmd("startinsert")
   vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>bd!<CR>", { nowait = true, noremap = true, silent = true })
 end
@@ -79,9 +84,9 @@ function M.run_current_file_with_class()
   local class_name = get_class_name()
 
   if class_name then
-    open_term({ "bash", "run.sh", file, class_name })
+    open_term({ "bash", "run.sh", file}, {CLASS = class_name,})
   else
-    print("Ingen klass hittades vid markören")
+    print("No classname found")
   end
 end
 
@@ -91,10 +96,21 @@ function M.run_current_file_with_method()
   local method_name = get_function_name()
 
   if method_name then
-    open_term({ "bash", "run.sh", file, method_name })
+    open_term({ "bash", "run.sh", file}, {METHOD = method_name,})
   else
     print("Ingen funktion/metod hittades vid markören")
   end
+end
+
+-- Run slot, reads slot character from keyboard
+function M.run_slot()
+	local key = vim.fn.getcharstr()
+
+	if key then
+		open_term({ "bash", "run.sh"}, {SLOT = key,})
+	else
+		print("No slot character pressed")
+	end
 end
 
 function M.run_previous()
@@ -137,6 +153,10 @@ function M.setup_commands()
 
   vim.api.nvim_create_user_command("RunMethod", function()
     M.run_current_file_with_method()
+  end, {})
+
+  vim.api.nvim_create_user_command("RunSlot", function()
+    M.run_slot()
   end, {})
 
   vim.api.nvim_create_user_command("RunPrevious", function()
